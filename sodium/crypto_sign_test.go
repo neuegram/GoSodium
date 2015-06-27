@@ -36,6 +36,13 @@ func TestSignAndVerify(t *testing.T) {
 			t.Fatalf("bad result signing: %v", ret)
 		}
 
+		// detached sign the message
+		signed_detached := make([]byte, SignBytes())
+		ret = SignDetached(signed_detached, msg, Sk)
+		if ret != 0 {
+			t.Fatalf("bad result signing detached: %v", ret)
+		}
+
 		// verify message
 		msg2 := make([]byte, len(msg))
 		ret = SignOpen(msg2, signed, Pk)
@@ -44,6 +51,12 @@ func TestSignAndVerify(t *testing.T) {
 		}
 		if !bytes.Equal(msg, msg2) {
 			t.Fatalf("different unsealed message")
+		}
+
+		// verify detached
+		ret = SignVerifyDetached(signed_detached, msg, Pk)
+		if ret != 0 {
+			t.Fatalf("bad result verifying detached: %v", ret)
 		}
 
 		// try corrupting the message at various points
